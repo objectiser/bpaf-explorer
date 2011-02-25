@@ -26,6 +26,7 @@ import org.jboss.bpm.monitor.model.BPAFDataSource;
 import org.jboss.bpm.monitor.model.DataSourceFactory;
 import org.jboss.bpm.monitor.model.bpaf.Event;
 import org.jboss.bpm.monitor.model.bpaf.State;
+import org.jboss.bpm.monitor.model.bpaf.Tuple;
 import org.jboss.bpm.monitor.model.metric.Timespan;
 import org.jboss.bpm.monitor.model.metric.TimespanFactory;
 import org.jboss.errai.bus.server.annotations.Service;
@@ -75,7 +76,7 @@ public class HistoryRecordsService implements HistoryRecords
 
     private Set<String> getInstances(String definitionKey, long timestamp, String timespan, State completionState) {
 
-        Set<String> result = new HashSet<String>();
+        Set<String> instanceIds = new HashSet<String>();
 
         Timespan chartTimespan = TimespanFactory.fromValue(timespan);
         long[] bounds = TimespanFactory.getLeftBounds(chartTimespan, new Date(timestamp));
@@ -90,11 +91,37 @@ public class HistoryRecordsService implements HistoryRecords
         for(Event e : events)
         {
             if(e.getEventDetails().getCurrentState().equals(completionState))
-                result.add(e.getProcessInstanceID());
+                instanceIds.add(e.getProcessInstanceID());
         }
-
+        
+        //Retrieve the Correlation information from the process instances.
+        
+        Set<String> result = new HashSet<String>();
+        
+        for (String instanceId : instanceIds) {
+        	List<Event> theEvents = dataSource.getPastActivities(instanceId);
+        	StringBuffer sbuffer = new StringBuffer();
+        	sbuffer.append("Instance Id: " + instanceId + " ");
+        	addCorrelationInformation(theEvents, sbuffer);
+        	result.add(sbuffer.toString());
+        }
+        
         return result;
     }
+    
+    
+	private void addCorrelationInformation(List<Event> theEvents, StringBuffer sbuffer) {
+		for (Event theEvent : theEvents) {
+			if ("CORRELATION_SET_WRITE".equals(theEvent.getActivityName())) {
+				for (Tuple tuple : theEvent.getDataElement()) {
+					if ("correlation-key".equals(tuple.getName())) {
+						sbuffer.append(" Correlation key: ");
+						sbuffer.append(tuple.getValue());
+					}
+				}
+			}
+		}
+	}
 
     /**
      * retrieve instances for a given timespan
