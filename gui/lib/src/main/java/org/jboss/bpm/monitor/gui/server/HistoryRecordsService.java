@@ -61,6 +61,23 @@ public class HistoryRecordsService implements HistoryRecords
         assertDataSource();
         return dataSource.getActivityDefinitions(instance);
     }
+    
+    
+    public List<String> getAllEvents(String processInstanceId) {
+    	assertDataSource();
+    	List<Event> events = dataSource.getPastActivities(processInstanceId);
+    	
+    	List<String> result = new LinkedList<String>();
+    	for (Event event: events) {
+    		for (Tuple tuple : event.getDataElement()) {
+    			if ("data".equals(tuple.getName())) {
+    				result.add(tuple.getValue());
+    			}
+    		}
+    	}
+    	
+    	return result;
+    }
 
     /**
      * retrieve instances for a given timespan

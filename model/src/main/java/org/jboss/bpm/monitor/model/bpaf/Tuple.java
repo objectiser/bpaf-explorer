@@ -76,7 +76,8 @@ public class Tuple
   {
     this.name = name;
   }
-
+  
+  @Lob
   @Column(name = "VALUE")  
   public String getValue()
   {

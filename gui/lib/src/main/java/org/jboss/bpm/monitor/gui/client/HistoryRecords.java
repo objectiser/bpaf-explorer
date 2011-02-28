@@ -24,5 +24,7 @@ public interface HistoryRecords
     Set<String> getTerminatedInstances(String definitionKey, long timestamp, String timespan);
 
     Set<String> getFailedInstances(String definitionKey, long timestamp, String timespan);
+    
+    List<String> getAllEvents(String instanceKey);
 
 }
