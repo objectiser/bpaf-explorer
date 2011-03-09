@@ -23,10 +23,14 @@ public final class Timespan
 
   public Timespan(long start, long end, UNIT unit, String title)
   {
-    this.start = start;
-    this.end = end;
+	this(start, end, title);
     this.unit = unit;
-    this.title = title;
+  }
+  
+  public Timespan(long start, long end, String title) {
+	  this.start = start;
+	  this.end = end;
+	  this.title = title;
   }
 
   public long getStart()

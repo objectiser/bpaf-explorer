@@ -26,6 +26,7 @@ import org.jboss.bpm.monitor.model.bpaf.State;
 import org.jboss.bpm.monitor.model.metric.Timespan;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author: Heiko Braun <hbraun@redhat.com>
@@ -45,6 +46,14 @@ public interface BPAFDataSource
      */
 
     List<String> getProcessInstances(String processDefinition);
+    
+    /**
+     * Get a list of distinct process instance ID's that are know to the system.
+     * @param processDefinition
+     * @param correlationKey
+     * @return
+     */
+    List<String> getProcessInstances(String processDefinition, String propertyName, String propertyValue);
 
     /**
      * Get a list of distinct activity definition ID's that are known to the system.
@@ -52,7 +61,7 @@ public interface BPAFDataSource
      */
 
     List<String> getActivityDefinitions(String processInstance);
-
+    
     /**
      * Get a list of process definition events for a specific timespan.
      * Process definition events are the ones that don't have and activityDefinition

@@ -164,7 +164,7 @@ public class HistoryRecordsService implements HistoryRecords
     public Set<String> getTerminatedInstances(String definitionKey, long timestamp, String timespan) {
 
         return getInstances(definitionKey, timestamp, timespan, State.Closed_Cancelled_Terminated);
-    }
+    }        
 
     // catch hosted mode errors
     private void assertDataSource() {
@@ -172,4 +172,38 @@ public class HistoryRecordsService implements HistoryRecords
             throw new IllegalStateException("BPAFDataSource not initialized");
 
     }
+
+	public List<String> getInstances(String definitionKey, String status, long startTime, long endTime, String correlationKey) {
+		List<Event> events = dataSource.getInstanceEvents(definitionKey, 
+					new Timespan(startTime, endTime, "Custom"), getStatus(status));
+		List<String> instanceIds = null;
+		if (correlationKey != null ) {
+			dataSource.getProcessInstances(definitionKey, "correlation-key", correlationKey);
+		}
+		List<String> result = new ArrayList<String>();
+		
+		for(Event e : events)
+        {
+			if(instanceIds == null || instanceIds.contains(e.getProcessInstanceID())) {
+				if (e.getEventDetails().getCurrentState().equals(getStatus(status))) {
+					result.add(e.getProcessInstanceID());
+				}
+			}
+        }
+		
+		return result;
+	}
+	
+	private State getStatus(String status) {
+		if ("COMPLETED".equalsIgnoreCase(status)) {
+			return State.Closed_Completed;
+		}
+		if ("FAILED".equalsIgnoreCase(status)) {
+			return State.Closed_Completed_Failed;
+		}
+		if ("TERMINATED".equalsIgnoreCase(status)) {
+			return State.Closed_Cancelled_Terminated;
+		}
+		return null;
+	}
 }

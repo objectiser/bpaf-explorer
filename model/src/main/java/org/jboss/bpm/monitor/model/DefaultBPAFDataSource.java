@@ -31,6 +31,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
 import javax.transaction.*;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author: Heiko Braun <hbraun@redhat.com>
@@ -239,4 +240,21 @@ public class DefaultBPAFDataSource implements BPAFDataSource
 
         return result;
     }
+    
+    
+	public List<String> getProcessInstances(final String processDefinition, final String propertyName, final String propertyValue) {
+		List<String> result = executeCommand(new SQLCommand<List<String>>() {
+
+			public List<String> execute(EntityManager em) {
+				Query query = em.createNativeQuery("select distinct e.PROCESS_INSTANCE_ID from BPAF_EVENT as e where e.PROCESS_DEFINITION_ID = ?1 and e.EID in (" +
+						"select d.EVENT_ID from BPAF_EVENT_DATA as d where d.NAME = ?2 and d.VALUE = ?3) ");
+				query.setParameter(1, processDefinition);
+				query.setParameter(2, propertyName);
+				query.setParameter(3, propertyValue);
+				return query.getResultList();
+			}
+			
+		});
+		return result;
+	}
 }
