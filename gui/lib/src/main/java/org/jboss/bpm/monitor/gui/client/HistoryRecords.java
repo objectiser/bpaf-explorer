@@ -26,7 +26,5 @@ public interface HistoryRecords
     Set<String> getFailedInstances(String definitionKey, long timestamp, String timespan);
     
     List<String> getAllEvents(String instanceKey);
-    
-    List<String> getInstances(String definitionKey, String status, long startTime, long endTime, String correlationKey);
-
+  
 }
