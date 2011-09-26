@@ -34,6 +34,7 @@ import java.util.Properties;
 
 import org.hibernate.HibernateException;
 import org.hibernate.MappingException;
+import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.usertype.ParameterizedType;
 import org.hibernate.usertype.UserType;
 import org.jboss.bpm.monitor.model.bpaf.State;
@@ -53,25 +54,6 @@ public class StateUserType implements UserType, ParameterizedType {
 
     public Class returnedClass() {
         return clazz;
-    }
-
-    public Object nullSafeGet(ResultSet resultSet, String[] names, Object owner)
-                             throws HibernateException, SQLException {
-        String name = resultSet.getString(names[0]);
-        Object result = null;
-        if (!resultSet.wasNull()) {
-            result = State.valueOf(name);
-        }
-        return result;
-    }
-
-   public void nullSafeSet(PreparedStatement preparedStatement, Object value, int index)
-                          throws HibernateException, SQLException {
-        if (null == value) {
-            preparedStatement.setNull(index, Types.VARCHAR);
-        } else {
-            preparedStatement.setString(index, ((State)value).toString());
-        }
     }
 
     public Object deepCopy(Object value) throws HibernateException{
@@ -96,6 +78,24 @@ public class StateUserType implements UserType, ParameterizedType {
     public int hashCode(Object x) throws HibernateException {
         return x.hashCode();
     }
+
+    public Object nullSafeGet(ResultSet resultSet, String[] names, SessionImplementor sessionImplementor, Object o) throws HibernateException, SQLException {
+        String name = resultSet.getString(names[0]);
+        Object result = null;
+        if (!resultSet.wasNull()) {
+            result = State.valueOf(name);
+        }
+        return result;
+    }
+
+    public void nullSafeSet(PreparedStatement preparedStatement, Object value, int index, SessionImplementor sessionImplementor) throws HibernateException, SQLException {
+        if (null == value) {
+            preparedStatement.setNull(index, Types.VARCHAR);
+        } else {
+            preparedStatement.setString(index, ((State)value).toString());
+        }
+    }
+
     public boolean equals(Object x, Object y) throws HibernateException {
         if (x == y)
             return true;
