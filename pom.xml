@@ -76,7 +76,7 @@
         <resteasy.version>1.0.2.GA</resteasy.version>
         <stax-api.version>1.0-2</stax-api.version>
         <errai.version>1.1-Final</errai.version>
-        <hibernate.version>4.0.0.Beta1</hibernate.version>
+        <hibernate.version>4.0.0.Final</hibernate.version>
         <hibernate.commons.annotation.version>3.2.0.Final</hibernate.commons.annotation.version>
         <javassist.version>3.12.1.GA</javassist.version>
     </properties>
