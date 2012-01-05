@@ -4,7 +4,7 @@
     <name>JBoss BPM - ActivityMonitor</name>
     <groupId>org.jboss.bpm</groupId>
     <artifactId>activity-monitor-parent</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.2.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <description>
@@ -44,6 +44,16 @@
                 <role>Developer</role>
             </roles>
             <timezone>+10</timezone>
+        </developer>
+        <developer>
+            <name>Toni Rikkola</name>
+            <id>Rikkola</id>
+            <email>trikkola@redhat.com</email>
+            <organization>Red Hat</organization>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <timezone>+2</timezone>
         </developer>
     </developers>
     
