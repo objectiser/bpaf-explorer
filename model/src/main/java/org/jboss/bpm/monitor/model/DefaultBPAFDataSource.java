@@ -26,6 +26,7 @@ import org.jboss.bpm.monitor.model.bpaf.State;
 import org.jboss.bpm.monitor.model.metric.Timespan;
 
 import javax.naming.InitialContext;
+import javax.naming.NameNotFoundException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
@@ -61,7 +62,12 @@ public class DefaultBPAFDataSource implements BPAFDataSource
         try
         {
             InitialContext ctx = new InitialContext();
-            tx = (UserTransaction)ctx.lookup("UserTransaction");
+            try{
+                tx = (UserTransaction)ctx.lookup("UserTransaction");
+            } catch (NameNotFoundException nnfe) {
+                //This is a new name in JBoss AS7.
+                tx = (UserTransaction)ctx.lookup("java:jboss/UserTransaction");
+            }
             tx.begin();
 
             em = emf.createEntityManager();
