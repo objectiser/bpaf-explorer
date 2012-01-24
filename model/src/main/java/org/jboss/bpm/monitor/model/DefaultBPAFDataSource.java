@@ -36,6 +36,8 @@ import java.util.Set;
 
 /**
  * @author: Heiko Braun <hbraun@redhat.com>
+ * @author Jeff Yu <cyu@redhat.com>
+ *
  * @date: Mar 10, 2010
  */
 public class DefaultBPAFDataSource implements BPAFDataSource
@@ -104,9 +106,7 @@ public class DefaultBPAFDataSource implements BPAFDataSource
         {
             public List<String> execute(EntityManager em)
             {
-                Query query = em.createNativeQuery(
-                        "select distinct e.PROCESS_DEFINITION_ID from BPAF_EVENT as e"
-                );
+                Query query = em.createQuery("SELECT distinct (e.processDefinitionID) FROM Event as e");
                 return query.getResultList();
             }
         });
@@ -120,10 +120,9 @@ public class DefaultBPAFDataSource implements BPAFDataSource
         {
             public List<String> execute(EntityManager em)
             {
-                Query query = em.createNativeQuery(
-                        "select distinct e.PROCESS_INSTANCE_ID from BPAF_EVENT as e" +
-                                " where e.PROCESS_DEFINITION_ID=:id"
-                );
+                Query query = em.createQuery("SELECT distinct (e.processInstanceID) FROM Event as e " +
+                        " WHERE e.processDefinitionID = :id");
+
                 query.setParameter("id", processDefinition);
                 return query.getResultList();
             }
@@ -138,11 +137,8 @@ public class DefaultBPAFDataSource implements BPAFDataSource
         {
             public List<String> execute(EntityManager em)
             {
-                Query query = em.createNativeQuery(
-                        "select distinct e.ACTIVITY_DEFINITION_ID from BPAF_EVENT as e" +
-                                " where e.PROCESS_INSTANCE_ID=:id" +
-                                " and e.ACTIVITY_DEFINITION_ID!=null"
-                );
+                Query query = em.createQuery("SELECT distinct (e.activityDefinitionID) FROM Event as e " +
+                        " WHERE e.processInstanceID = :id AND e.activityDefinitionID is not null");
                 query.setParameter("id", processInstance);
                 return query.getResultList();
             }
@@ -160,21 +156,20 @@ public class DefaultBPAFDataSource implements BPAFDataSource
         {
             public List<Event> execute(EntityManager em)
             {
+                Query query = em.createQuery("select e1 " +
+                        "from Event as e1, Event as e2 " +
+                        "where e1.processDefinitionID=e2.processDefinitionID " +
+                        "and e1.processInstanceID=e2.processInstanceID " +
+                        "and ((e1.eventDetails.currentState=?1 and e2.eventDetails.currentState=?2) OR (e2.eventDetails.currentState=?1 and e1.eventDetails.currentState=?2)) " +
+                        "and e1.activityDefinitionID is null " +
+                        "and e2.activityDefinitionID is null " +
+                        "and e1.processDefinitionID='"+processDefinition+"' "+
+                        "and e1.timestamp>=?3 "+
+                        "and e2.timestamp<=?4 "+
+                        "order by e1.eventID ");
 
-                Query query = em.createNativeQuery("select e1.* " +
-                        "from BPAF_EVENT e1, BPAF_EVENT e2 " +
-                        "where e1.PROCESS_DEFINITION_ID=e2.PROCESS_DEFINITION_ID " +
-                        "and e1.PROCESS_INSTANCE_ID=e2.PROCESS_INSTANCE_ID " +
-                        "and ((e1.CURRENT_STATE=?1 and e2.CURRENT_STATE=?2) OR (e2.CURRENT_STATE=?1 and e1.CURRENT_STATE=?2)) " +
-                        "and e1.ACTIVITY_DEFINITION_ID is null " +
-                        "and e2.ACTIVITY_DEFINITION_ID is null " +
-                        "and e1.PROCESS_DEFINITION_ID='"+processDefinition+"' "+
-                        "and e1.TIMESTAMP>=?3 "+
-                        "and e2.TIMESTAMP<=?4 "+
-                        "order by e1.EID;", Event.class);
-
-                query.setParameter(1, State.Open_Running.toString());
-                query.setParameter(2, completionState.toString());
+                query.setParameter(1, State.Open_Running);
+                query.setParameter(2, completionState);
                 query.setParameter(3, timespan.getStart());
                 query.setParameter(4, timespan.getEnd());
 
@@ -191,20 +186,20 @@ public class DefaultBPAFDataSource implements BPAFDataSource
         {
             public List<Event> execute(EntityManager em)
             {
-                StringBuffer sb = new StringBuffer("SELECT e1.* ");
-                sb.append("FROM BPAF_EVENT e1, BPAF_EVENT e2 ");
-                sb.append("WHERE e1.PROCESS_INSTANCE_ID=e2.PROCESS_INSTANCE_ID " );
-                sb.append("AND ((e1.CURRENT_STATE=?1 and e2.CURRENT_STATE=?2) OR (e2.CURRENT_STATE=?1 and e1.CURRENT_STATE=?2)) " );
-                sb.append("AND e1.ACTIVITY_DEFINITION_ID is not null " );
-                sb.append("AND e2.ACTIVITY_DEFINITION_ID is not null " );
+                StringBuffer sb = new StringBuffer("SELECT e1 ");
+                sb.append("FROM Event as e1, Event as e2 ");
+                sb.append("WHERE e1.processInstanceID=e2.processInstanceID " );
+                sb.append("AND ((e1.eventDetails.currentState=?1 and e2.eventDetails.currentState=?2) OR (e2.eventDetails.currentState=?1 and e1.eventDetails.currentState=?2)) " );
+                sb.append("AND e1.activityDefinitionID is not null " );
+                sb.append("AND e2.activityDefinitionID is not null " );
 
                 sb.append("AND (");
                 for(int i=0; i<processInstances.length; i++)
                 {
                     if(i==0)
-                        sb.append("e1.PROCESS_INSTANCE_ID=\""+processInstances[i]+"\" ");
+                        sb.append("e1.processInstanceID=\""+processInstances[i]+"\" ");
                     else
-                        sb.append("OR e1.PROCESS_INSTANCE_ID=\""+processInstances[i]+"\" ");
+                        sb.append("OR e1.processInstanceID=\""+processInstances[i]+"\" ");
                 }
 
                 sb.append(") ");
@@ -212,14 +207,14 @@ public class DefaultBPAFDataSource implements BPAFDataSource
                 //sb.append("and e1.timeStamp>="+timespan.getStart()+" ");
                 //sb.append("and e2.timeStamp<="+timespan.getEnd()+" ");
 
-                sb.append("GROUP BY e1.ACTIVITY_INSTANCE_ID " );
-                sb.append("ORDER BY e1.TIMESTAMP, e1.PROCESS_INSTANCE_ID");
+                sb.append("GROUP BY e1.activityInstanceID " );
+                sb.append("ORDER BY e1.timestamp, e1.processInstanceID");
 
 
-                Query query = em.createNativeQuery(sb.toString(), Event.class);
+                Query query = em.createQuery(sb.toString());
 
-                query.setParameter(1, State.Open_Running.toString());
-                query.setParameter(2, State.Closed_Completed.toString());
+                query.setParameter(1, State.Open_Running);
+                query.setParameter(2, State.Closed_Completed);
 
                 return query.getResultList();
             }
@@ -235,8 +230,8 @@ public class DefaultBPAFDataSource implements BPAFDataSource
             public List<Event> execute(EntityManager em)
             {
                 Query query = em.createQuery(
-                        "select e from Event as e" +
-                                " where e.processInstanceID=:id"
+                        "SELECT e FROM Event as e" +
+                                " WHERE e.processInstanceID=:id"
                 );
                 query.setParameter("id", processInstance);
 
@@ -252,11 +247,11 @@ public class DefaultBPAFDataSource implements BPAFDataSource
 		List<String> result = executeCommand(new SQLCommand<List<String>>() {
 
 			public List<String> execute(EntityManager em) {
-				Query query = em.createNativeQuery("select distinct e.PROCESS_INSTANCE_ID from BPAF_EVENT as e where e.PROCESS_DEFINITION_ID = ?1 and e.EID in (" +
-						"select d.EVENT_ID from BPAF_EVENT_DATA as d where d.NAME = ?2 and d.VALUE = ?3) ");
-				query.setParameter(1, processDefinition);
-				query.setParameter(2, propertyName);
-				query.setParameter(3, propertyValue);
+                Query query = em.createQuery("SELECT distinct e.processInstanceID FROM Event as e WHERE e.processDefinitionID = :definitionId AND" +
+                        " e.eventID IN (SELECT d.event.eventID FROM Tuple as d WHERE d.name = :name AND d.value = :value)");
+				query.setParameter("definitionId", processDefinition);
+				query.setParameter("name", propertyName);
+				query.setParameter("value", propertyValue);
 				return query.getResultList();
 			}
 			
