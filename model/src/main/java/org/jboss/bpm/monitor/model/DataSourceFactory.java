@@ -24,7 +24,7 @@ import javax.persistence.EntityManagerFactory;
  */
 public class DataSourceFactory {
 
-    public static final String ENTITY_MANAGER_FACTORY = "java:global/BPELEMFactory";
+    public static final String ENTITY_MANAGER_FACTORY = "java:jboss/BPELEMFactory";
 
     public static BPAFDataSource createDataSource()
     {
