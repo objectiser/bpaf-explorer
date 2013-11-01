@@ -79,7 +79,23 @@ public interface BPAFDataSource
      */
     List<Event> getInstanceEvents(String processDefinition, Timespan timespan, State completionState);
 
-
+    /**
+     * This method queries the process instances associated with a process definition,
+     * within a defined time frame, that have a particular completion status. An optional
+     * correlation key can be defined to identify specific instances. The startPos and
+     * numOfInstances values are used to provide pagination.
+     * 
+     * @param processDefinition The process definition 
+     * @param timespan The time span
+     * @param completionState The completion state
+     * @param correlationKey The optional correlation key
+     * @param startPos The start position (0 is first element)
+     * @param numOfInstances The max number of instances to return
+     * @return The list of process instance ids
+     */
+    public List<String> getProcessInstances(String processDefinition, Timespan timespan,
+            State completionState, String correlationKey, int startPos, int numOfInstances);
+    
     /**
      * Get a list of process instance events.
      * Process instance event are the one that have an activity assigned to it.

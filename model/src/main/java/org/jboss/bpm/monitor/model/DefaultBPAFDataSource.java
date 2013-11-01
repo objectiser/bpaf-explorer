@@ -180,6 +180,71 @@ public class DefaultBPAFDataSource implements BPAFDataSource
         return result;
     }
 
+    public List<String> getProcessInstances(
+            final String processDefinition,
+            final Timespan timespan,
+            final State completionState,
+            final String correlationKey,
+            final int startpos,
+            final int maxnum)
+    {
+        List<String> result = executeCommand(new SQLCommand<List<String>>()
+        {
+            public List<String> execute(EntityManager em)
+            {
+            	java.util.List<String> ret=new java.util.ArrayList<String>();
+                Query query=null;
+                
+                if (correlationKey == null) {
+                	query = em.createQuery("select e1 from Event as e1 "+
+                			"where e1.eventDetails.currentState=?1 " +
+                            "and e1.activityDefinitionID is null " +
+                            "and e1.processDefinitionID='"+processDefinition+"' "+
+                            "and e1.timestamp>=?2 "+
+                            "and e1.timestamp<=?3 " +
+                            "order by e1.timestamp");
+
+	                query.setParameter(1, completionState);
+	                query.setParameter(2, timespan.getStart());
+	                query.setParameter(3, timespan.getEnd());
+                } else {
+                	query = em.createQuery("select e1 " +
+                            "from Event as e1, Event as e2, " +
+                            "IN(e1.dataElement) de "+
+                            "where e1.processDefinitionID=e2.processDefinitionID " +
+                            "and e1.processInstanceID=e2.processInstanceID " +
+                            "and e2.eventDetails.currentState=?1 " +
+                            "and e2.activityDefinitionID is null " +
+                            "and e1.processDefinitionID='"+processDefinition+"' "+
+                            "and e1.timestamp>=?2 "+
+                            "and e1.timestamp<=?3 "+
+                            "and de.name='correlation-key' "+
+                            "and de.value='"+correlationKey+"' "+
+                            "order by e1.timestamp");
+
+                    query.setParameter(1, completionState);
+                    query.setParameter(2, timespan.getStart());
+                    query.setParameter(3, timespan.getEnd());
+                }
+                
+                if (maxnum > 0) {
+	                query.setFirstResult(startpos);
+	                query.setMaxResults(maxnum);
+                }
+	                	
+                for (Object evt : query.getResultList()) {
+                	if (evt instanceof Event) {
+                		ret.add(((Event)evt).getProcessInstanceID());
+                	}
+                }
+                
+                return (ret);
+            }
+        });
+
+        return result;
+    }
+
     public List<Event> getActivityCompletedEvents(final String... processInstances)
     {
         List<Event> result = executeCommand(new SQLCommand<List<Event>>()
