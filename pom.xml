@@ -7,6 +7,12 @@
     <version>1.2.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
+    <parent>
+        <groupId>org.jboss</groupId>
+        <artifactId>jboss-parent</artifactId>
+        <version>10</version>
+    </parent>
+
     <description>
         BPAF History loggin library    
     </description>
@@ -73,22 +79,11 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <commons.fileupload.version>1.2.1</commons.fileupload.version>
-        <commons.io.version>1.3.2</commons.io.version>
-        <commons.logging.version>1.1.1</commons.logging.version>
-        <commons-lang.version>2.4</commons-lang.version>
-        <commons-config.version>1.6</commons-config.version>
-        <gson.version>1.2.2</gson.version>
-        <gwt.version>2.0.4</gwt.version>
 
-        <jboss.common.version>2.2.7.GA</jboss.common.version>
-        <junit.version>3.8.1</junit.version>
-        <resteasy.version>1.0.2.GA</resteasy.version>
-        <stax-api.version>1.0-2</stax-api.version>
+        <jboss-integration-platform.version>6.0.0-SNAPSHOT</jboss-integration-platform.version>
+
+        <gwt.version>2.0.4</gwt.version>
         <errai.version>1.1-Final</errai.version>
-        <hibernate.version>4.0.0.Final</hibernate.version>
-        <hibernate.commons.annotation.version>3.2.0.Final</hibernate.commons.annotation.version>
-        <javassist.version>3.12.1.GA</javassist.version>
     </properties>
 
     <modules>
@@ -101,12 +96,13 @@
 
     <dependencyManagement>
         <dependencies>
-
-            <!-- Other -->
+            <!-- Imported dependencies -->
             <dependency>
-                <groupId>commons-logging</groupId>
-                <artifactId>commons-logging</artifactId>
-                <version>${commons.logging.version}</version>
+                <groupId>org.jboss.integration-platform</groupId>
+                <artifactId>jboss-integration-platform-bom</artifactId>
+                <version>${jboss-integration-platform.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
 
             <!-- Errai -->
@@ -144,71 +140,6 @@
                 <artifactId>errai-bus</artifactId>
                 <version>${errai.version}</version>
                 <classifier>sources</classifier>
-            </dependency>
-
-            <dependency>
-                <groupId>org.hibernate</groupId>
-                <artifactId>hibernate-core</artifactId>
-                <version>${hibernate.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.hibernate</groupId>
-                <artifactId>hibernate-commons-annotations</artifactId>
-                <version>${hibernate.commons.annotation.version}</version>
-            </dependency>
-            
-            <dependency>
-                <groupId>org.hibernate</groupId>
-                <artifactId>hibernate-tools</artifactId>
-                <version>3.2.3.GA</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.hibernate</groupId>
-                <artifactId>hibernate-entitymanager</artifactId>
-                <version>${hibernate.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>1.5.10</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-log4j12</artifactId>
-                <version>1.5.10</version>
-            </dependency>
-
-            <dependency>
-                <groupId>javassist</groupId>
-                <artifactId>javassist</artifactId>
-                <version>${javassist.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>mysql</groupId>
-                <artifactId>mysql-connector-java</artifactId>
-                <version>5.1.12</version>
-                <scope>provided</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>org.timepedia.chronoscope</groupId>
-                <artifactId>chronoscope</artifactId>
-                <version>2.0_jboss</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.timepedia.chronoscope</groupId>
-                <artifactId>chronoscope-api</artifactId>
-                <version>2.0_jboss</version>
-            </dependency>
-
-             <dependency>
-                <groupId>org.timepedia.exporter</groupId>
-                <artifactId>gwtexporter</artifactId>
-                <version>2.0.10</version>
             </dependency>
 
         </dependencies>
