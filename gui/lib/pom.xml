@@ -20,14 +20,13 @@
         <dependency>
             <groupId>org.jboss.bpm</groupId>
             <artifactId>activity-monitor-model</artifactId>
-            <version>1.2.2-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         
         <dependency>
             <groupId>com.google.gwt</groupId>
             <artifactId>gwt-user</artifactId>
             <scope>provided</scope>
-            <version>${gwt.version}</version>
         </dependency>
 
         <!-- Errai -->
@@ -63,9 +62,8 @@
         </dependency>
         
         <dependency>
-        	<groupId>com.google.code</groupId>
-        	<artifactId>google-gin</artifactId>
-        	<version>1.0</version>
+            <groupId>com.google.code</groupId>
+            <artifactId>google-gin</artifactId>
         </dependency>
 	
     </dependencies>
