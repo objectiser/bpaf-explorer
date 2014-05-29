@@ -147,6 +147,18 @@
                 <classifier>sources</classifier>
             </dependency>
 
+            <dependency>
+                <groupId>org.jboss.errai</groupId>
+                <artifactId>errai-ioc</artifactId>
+                <version>${errai.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.errai</groupId>
+                <artifactId>errai-ioc</artifactId>
+                <version>${errai.version}</version>
+                <classifier>sources</classifier>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
